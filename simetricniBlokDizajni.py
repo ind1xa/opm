@@ -1,7 +1,11 @@
 
-v = 13         #početni skup je veličine v, tolko ima i blokova
-k = 4         #podskupovi su veličine k, svaka točka se nalazi u k blokova
-alpha = 1     #svake dvije točke skupa v nalaze se istovremeno u alpha blokova
+from time import sleep
+import time
+start_time = time.time()
+
+v = 16         #početni skup je veličine v, tolko ima i blokova
+k = 10         #podskupovi su veličine k, svaka točka se nalazi u k blokova
+alpha = 6     #svake dvije točke skupa v nalaze se istovremeno u alpha blokova
               #svaka dva bloka imaju alpha zajedničkih elemenata
 t = 2
 
@@ -73,6 +77,20 @@ def nijeBalansiran(paroviIzV, dizajn):
         if (count + (v - len(dizajn)) < alpha): return True
     return False
 
+def zadovoljavaAlphu(dizajn):
+    for x in dizajn:
+        for y in dizajn:
+            if x != y and len(list(set(x) & set(y))) != alpha:
+                return False
+    return True
+
+def neZadovoljavaAlphu(dizajn):
+    for x in dizajn:
+        for y in dizajn:
+            if x != y and len(list(set(x) & set(y))) > alpha:
+                return True
+    return False
+
 skup1 = {1}
 for x in range(1, v+1):
     skup1.add(x)
@@ -88,34 +106,40 @@ paroviIzV = nClaniPodskup(skup1, t)
 #moguciDizajni = nClaniPodskup(skup2,v)
 
 moguciDizajn = []
-indexPokusanih = v*[0]    
+indexPokusanih = v*[0]
 
 preskociSljedecuGranu = False
 
+#print(kombinacije)
+
 while (True):
+    #print(indexPokusanih)
+    #sleep(0.5)
     if (preskociSljedecuGranu):
         preskociSljedecuGranu = False
         while (True):
             moguciDizajn.pop()
-            if (indexPokusanih[len(moguciDizajn)] < len(kombinacije)-(v-len(moguciDizajn))):
+            if (indexPokusanih[len(moguciDizajn)] <= len(kombinacije)-(v-len(moguciDizajn))):
                 moguciDizajn.append(kombinacije[indexPokusanih[len(moguciDizajn)]])
                 break
         for x in range(len(moguciDizajn), len(indexPokusanih)):
             indexPokusanih[x] = indexPokusanih[len(moguciDizajn)-1]-len(moguciDizajn)+x
     else:
         moguciDizajn.append(kombinacije[indexPokusanih[len(moguciDizajn)]])
-    if (indexPokusanih[len(moguciDizajn)-1]+1 < len(kombinacije)-(v-len(moguciDizajn))):
+    if (indexPokusanih[len(moguciDizajn)-1]+1 <= len(kombinacije)-(v-len(moguciDizajn))):
         indexPokusanih[len(moguciDizajn)-1] += 1
         for x in range(len(moguciDizajn), len(indexPokusanih)):
             indexPokusanih[x] = indexPokusanih[len(moguciDizajn)-1]-len(moguciDizajn)+x
     else:
         preskociSljedecuGranu = True;
-    if (nijeRegularan(moguciDizajn) or nijeBalansiran(paroviIzV, moguciDizajn)):
+    if (nijeRegularan(moguciDizajn) or nijeBalansiran(paroviIzV, moguciDizajn) or neZadovoljavaAlphu(moguciDizajn)):
         moguciDizajn.pop()
     if (len(moguciDizajn) == v):
-        if (jeRegularan(moguciDizajn) and jeBalansiran(paroviIzV, moguciDizajn)):
+        if (jeRegularan(moguciDizajn) and jeBalansiran(paroviIzV, moguciDizajn) and zadovoljavaAlphu(moguciDizajn)):
             print("Simetrični v = " + str(v) + ", k = " + str(k) + ", alpha = " + str(alpha) + " dizajn je: ")
             print(moguciDizajn)
             break
         moguciDizajn.pop()
 
+
+print("--- %s seconds ---" % (time.time() - start_time))
